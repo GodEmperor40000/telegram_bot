@@ -1,0 +1,14 @@
+@startuml Example
+    title Телеграмм бот 
+
+    'left to right direction
+
+    actor "Пользователь" as User
+
+    usecase "Отправить запрос" as Question
+    usecase "Получить результат" as Result
+
+    User - Question
+    
+    Question ..> Result
+@enduml
