@@ -1,0 +1,21 @@
+@startuml Телеграмм бот
+
+component TelegramBot as Tb
+
+package "Django"{
+    component Model as model
+    component View as view
+}
+ 
+
+database "PostgreSQL"{
+    component Data as data
+}
+
+
+
+Tb - view
+view - model
+model - data
+
+@enduml

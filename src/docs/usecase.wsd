@@ -6,8 +6,10 @@
     actor "Пользователь" as User
     actor "База данных" as Db
     actor "Зарегистрированный пользователь" as Auth_user
+    actor "Командная строка" as CLI
 
     usecase "Отправить запрос" as question
+    usecase "Поиск по разделам" as secs_search
     usecase "Получить результат" as result
 
     package "База данных" {
@@ -19,7 +21,13 @@
 
     User -- question
     question ..> result
+    secs_search .left.> question
     Auth_user -|> User
+
+    CLI - read
+    CLI - create
+    CLI - update
+    CLI -down- del
 
     Auth_user -- create
     Auth_user - read
