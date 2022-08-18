@@ -2,6 +2,8 @@
 
 component TelegramBot as Tb
 
+left to right direction
+
 package "Django"{
     component Model as model
     component View as view
@@ -9,13 +11,18 @@ package "Django"{
  
 
 database "PostgreSQL"{
-    component Data as data
+    'component Data as data
+    component MainChapters as MC
+    component Subchupters as SC
 }
 
 
 
-Tb - view
-view - model
-model - data
+Tb -down- view
+view -down- model
+model -down- chapters
+chapters -down- MC
+model -down- data
+data -down- SC
 
 @enduml
