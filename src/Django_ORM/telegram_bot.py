@@ -1,15 +1,24 @@
 from os import stat
 import telebot
+import os,django
+
+os.environ.setdefault ("DJANGO_SETTINGS_MODULE", "Django_ORM.settings") 
+django.setup()
+
+from information.views import information_returner, get_chapters, get_request 
 
 bot = telebot.TeleBot('5437081176:AAH2QeGKLbiYgn2i8S1LtM0Zs8x5EOBb6Q4')
-
+information = information_returner()
+all_chapters = get_chapters()
 main_chapters = ['Окружение', 'Основы Python', 'Алгоритмы и структуры данных', 'БД', 'HTTP протокол', 'полезные ссылки']
 subchapters = ['числа', 'знаки', 'питон']
 thirdLevelChapters = ['базовые числа']
 state1 = True
 
+
 @bot.message_handler(commands=["start"])
 def start(m, res=False):
+    bot.send_message(m.chat.id, information + '\n'+ str(all_chapters))
     bot.send_message(m.chat.id, 'Я на связи \n Правила пользования ботом: \n Бот воспринимает только письменные запросы. Поиск информации происходит по разделам. Чтобы выбрать раздел, отправьте боту его название')
     bot.send_message(m.chat.id, 'Доступные разделы:')
     state1 = True
@@ -36,14 +45,5 @@ def handle_text(message):
                 bot.send_message(message.chat.id, theme)
         else:
             bot.send_message(message.chat.id, '2Извините, раздел ' + message.text + ' не найден')
-
-@bot.message_handler(content_types=["text"])
-def subchapters_handler(mes):
-    if mes.text in subchapters:
-        bot.send_message(mes.chat.id, '2В подразделе ' + mes.text + ' доступны следующие темы:')
-        for theme in thirdLevelChapters:
-            bot.send_message(mes.chat.id, theme)
-    else:
-        bot.send_message(mes.chat.id, '2Извините, раздел ' + mes.text + ' не найден')
 
 bot.polling(none_stop=True, interval=0)
