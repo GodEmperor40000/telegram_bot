@@ -5,10 +5,11 @@ import os,django
 os.environ.setdefault ("DJANGO_SETTINGS_MODULE", "Django_ORM.settings") 
 django.setup()
 
-from information.views import information_returner, get_chapters, get_request 
+from information.views import get_information, get_chapters
 
-bot = telebot.TeleBot('5437081176:AAH2QeGKLbiYgn2i8S1LtM0Zs8x5EOBb6Q4')
-information = information_returner()
+api_key = open('API_key.txt', 'r')
+bot = telebot.TeleBot(api_key.read())
+#information = get_information(1,2,3)
 all_chapters = get_chapters()
 main_chapters = ['Окружение', 'Основы Python', 'Алгоритмы и структуры данных', 'БД', 'HTTP протокол', 'полезные ссылки']
 subchapters = ['числа', 'знаки', 'питон']
@@ -18,7 +19,7 @@ state1 = True
 
 @bot.message_handler(commands=["start"])
 def start(m, res=False):
-    bot.send_message(m.chat.id, information + '\n'+ str(all_chapters))
+    bot.send_message(m.chat.id, '\n'+ str(all_chapters))
     bot.send_message(m.chat.id, 'Я на связи \n Правила пользования ботом: \n Бот воспринимает только письменные запросы. Поиск информации происходит по разделам. Чтобы выбрать раздел, отправьте боту его название')
     bot.send_message(m.chat.id, 'Доступные разделы:')
     state1 = True
