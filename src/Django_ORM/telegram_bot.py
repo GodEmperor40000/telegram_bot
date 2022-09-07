@@ -7,7 +7,7 @@ from telebot import types
 os.environ.setdefault ("DJANGO_SETTINGS_MODULE", "Django_ORM.settings") 
 django.setup()
 
-from information.views import get_information, get_chapters, add_MainChapter
+from information.views import get_information, get_chapters, add_MainChapter, deleteMChapter
 
 api_key = open('API_key.txt', 'r')
 bot = telebot.TeleBot(api_key.read())
@@ -17,7 +17,7 @@ main_chapters = ['Окружение', 'Основы Python', 'Алгоритм�
 subchapters = ['числа', 'знаки', 'питон']
 thirdLevelChapters = ['базовые числа']
 state1, stateSearch, stateCreate, stateDelete = True, False, False, False
-
+all_chapters = get_chapters()
 
 @bot.message_handler(commands=["start"])
 def start(m, res=False):
@@ -39,10 +39,11 @@ def createNewChapter(message):
     stateCreate, stateSearch = True, False
 
 @bot.message_handler(commands= ["delete"])
-def deleteMChapter(message):
-    bot.send_message(message.chat.id,'Напишите название главы, которую вы хотите удалить')
-    global stateCreate, stateSearch, stateDelete
-    stateCreate, stateSearch = False, False, True
+def deletingMChapter(message):
+    #bot.send_message(message.chat.id,'Напишите название главы, которую вы хотите удалить')
+    global stateCreate, stateSearch, stateDelete 
+    stateCreate, stateSearch,stateDelete = False, False, True
+    
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
@@ -73,6 +74,17 @@ def handle_text(message):
         bot.send_message(message.chat.id, f'Вы добавили главу: {message.text}')
 
     elif stateDelete:
-        bot.send_message(message.chat.id, f'Глава {message.text} удалена')
+        all_chapters = get_chapters()
+        if message.text in all_chapters:
+            name = message.text
+            bot.send_message(message.chat.id, f'Глава {name} удаляется...')
+            a = deleteMChapter(message.text)
+            bot.send_message(message.chat.id, f'{a}')
+            bot.send_message(message.chat.id, f'Глава удалена')
+        else:
+            bot.send_message(message.chat.id, 'Данной главы не существует')
+        
 
 bot.polling(none_stop=True, interval=0)
+
+#Починить удаление глав
