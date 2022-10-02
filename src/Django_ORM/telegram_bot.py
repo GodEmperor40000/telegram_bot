@@ -19,8 +19,15 @@ thirdLevelChapters = ['базовые числа']
 
 #states = {state1: True, stateSearch: False, stateCreate: False, stateSubCreate: False, stateDelete: False}
 state1, stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = True, False, False, False, False, False, False
+states = {'state1': True, 'stateSearch': False, 'stateCreate': False, 'stateSubCreate': False, 'stateDelete': False, 'stateTLCreate': False, 'stateCreateInfo': False }
 all_chapters = get_chapters()
-
+def state_falser():
+    global states
+    for state in states:
+        print(state)
+        if state != 'state1':
+            states[state] = False
+    return states
 
 #================================================================================================================
 
@@ -32,8 +39,9 @@ def start(m, res=False):
         bot.send_message(m.chat.id, f'{chapter} {all_chapters[chapter]}')
     bot.send_message(m.chat.id, 'Я на связи \n Правила пользования ботом: \n Бот воспринимает только письменные запросы. Поиск информации происходит по разделам. Чтобы выбрать раздел, отправьте боту его название')
     bot.send_message(m.chat.id, 'Доступные разделы:')
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = True, False, False, False, False, False
+    global states
+    state_falser()
+    states['stateSearch'] = True
     for mchapter in main_chapters:
         bot.send_message(m.chat.id, mchapter)
     
@@ -49,33 +57,38 @@ def create(message):
 @bot.message_handler(commands = ["create_Subchapter"])
 def createNewSubchapter(message):
     bot.send_message(message.chat.id, 'Напишите название подглавы, которую вы хотите добавить и главы, в которую вы хотите добавить подглаву в формате: Глава Подглава')
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = False, False, True, False, False, False
+    global states
+    state_falser()
+    states['stateSubCreate'] = True
 
 @bot.message_handler(commands = ["create_Chapter"])
 def createNewChapter(message):
     bot.send_message(message.chat.id,'Напишите название новой главы')
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = False, True, False, False, False, False
+    global states
+    state_falser()
+    states['stateCreate'] = True
 
 @bot.message_handler(commands = ["create_TLchapter"])
 def createNewTLChapter(message):
-    bot.send_message(message.chat.id, "Напишите название главы третьего уровня, которую вы хотите добавить, название главы и подглавы, в которые вы хотите добавить новую главу в формате: Глава Подглава Глава третьего уровня  ")
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = False, False, False, False, True, False
+    bot.send_message(message.chat.id, "Напишите название главы третьего уровня, которую вы хотите добавить, название главы и подглавы, в которые вы хотите добавить новую главу в формате: Глава, Подглава, Глава третьего уровня  ")
+    global states
+    state_falser()
+    states['stateTLCreate'] = True
 
 @bot.message_handler(commands = ["create_Info"])
 def createNewInfo(message):
     bot.send_message(message.chat.id, 'Напишите информацию, которую вы хотите добавить в раздел в формате: Глава Подглава Глава третьего уровня Информация. Всё, что будет написано после главы третьего уровня, будет добавлено в качестве информации')
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = False, False, False, False, False, True
+    global states
+    state_falser()
+    states['stateCreateInfo'] = True
 
 
 @bot.message_handler(commands= ["delete"])
 def deletingMChapter(message):
-    #bot.send_message(message.chat.id,'Напишите название главы, которую вы хотите удалить')
-    global stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo 
-    stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = False, False, False, True, False, False
+    bot.send_message(message.chat.id,'Напишите название главы, которую вы хотите удалить')
+    global states
+    state_falser()
+    states['stateDelete'] = True
 
 
 
@@ -85,16 +98,17 @@ def deletingMChapter(message):
 
 @bot.message_handler(content_types=["text"])
 def handle_text(message):
-    global state1, stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo
-    #bot.send_message(message.chat.id, f'stateSearch: {stateSearch, stateCreate}')
-    if stateSearch:
+    global states
+    bot.send_message(message.chat.id, f"stateSearch: {states['stateSearch']}")
+    #bot.send_message(message.chat.id, f'state1: {states[state1]}')
+    if states['stateSearch'] == True:
         bot.send_message(message.chat.id, 'Вы ищите:')
-        if state1 == True:
+        if states['state1'] == True:
             if message.text in main_chapters:
                 bot.send_message(message.chat.id, '1В разделе ' + message.text + ' доступны следующие подразделы: ')
                 for subchapter in subchapters:
                     bot.send_message(message.chat.id, subchapter)
-                state1 = False 
+                states['state1'] = False 
             else:
                 bot.send_message(message.chat.id, '1Извините, раздел ' + message.text + ' не найден')
         
@@ -106,12 +120,12 @@ def handle_text(message):
             else:
                 bot.send_message(message.chat.id, '2Извините, раздел ' + message.text + ' не найден')
         
-    elif stateCreate:
+    elif states['stateCreate']:
         
         add_MainChapter(message.text)
         bot.send_message(message.chat.id, f'Вы добавили главу: {message.text}')
 
-    elif stateSubCreate:
+    elif states['stateSubCreate']:
         messageText = message.text.split(' ')
         subChapter = messageText[1]
         chapter = messageText[0]
@@ -119,7 +133,7 @@ def handle_text(message):
         add_SubChapter(subChapter, chapter)
         bot.send_message(message.chat.id, 'Подглава добавлена')
 
-    elif stateDelete:
+    elif states['stateDelete']:
         all_chapters = get_chapters()
         if message.text in all_chapters:
             name = message.text
@@ -130,10 +144,23 @@ def handle_text(message):
         else:
             bot.send_message(message.chat.id, 'Данной главы не существует')
 
-    elif stateTLCreate:
-        bot.send_message(message.chat.id, f'Тут пока ничего не работает')
+    elif states['stateTLCreate']:
+        all_chapters = get_chapters()
+        messageText = message.text.split(', ')
+        chapter = messageText[0]
+        subChapter = messageText[1]
+        tlChapter = messageText[2]
+        bot.send_message(message.chat.id, f'Вы хотите добавить главу: {tlChapter} в подглаву: {subChapter} в главе: {chapter}')
+        if chapter in all_chapters and subChapter in all_chapters[chapter]:
+            bot.send_message(message.chat.id, 'Глава и подглава найдены')
+            add_thirdLevelChapter(chapter, subChapter, tlChapter)
+            bot.send_message(message.chat.id, 'Глава третьего уровня добавлена!')
+        elif chapter in all_chapters and subChapter not in all_chapters[chapter]:
+            bot.send_message(message.chat.id, 'В данной главе нет такой подглавы')
+        elif chapter not in all_chapters:
+            bot.send_message(message.chat.id, 'Нет такой главы')
 
-    elif stateCreateInfo:
+    elif states['stateCreateInfo']:
         bot.send_message(message.chat.id, f'тут пока ничего не работает')
 
         
