@@ -19,13 +19,15 @@ thirdLevelChapters = ['базовые числа']
 
 #states = {state1: True, stateSearch: False, stateCreate: False, stateSubCreate: False, stateDelete: False}
 state1, stateSearch, stateCreate, stateSubCreate, stateDelete, stateTLCreate, stateCreateInfo = True, False, False, False, False, False, False
-states = {'state1': True, 'stateSearch': False, 'stateCreate': False, 'stateSubCreate': False, 'stateDelete': False, 'stateTLCreate': False, 'stateCreateInfo': False }
+states = {'state1': True, 'state2': True, 'stateSearch': False, 'stateCreate': False, 'stateSubCreate': False, 'stateDelete': False, 'stateTLCreate': False, 'stateCreateInfo': False }
+chosenMainChapter = 1
+chosenSubChapter = 1
 all_chapters = get_chapters()
 def state_falser():
     global states
     for state in states:
         
-        if state != 'state1':
+        if state != 'state1' and state != 'state2':
             states[state] = False
     return states
 
@@ -44,8 +46,8 @@ def start(m, res=False):
     global states
     state_falser()
     states['stateSearch'] = True
-    for mchapter in main_chapters:
-        bot.send_message(m.chat.id, mchapter)
+    for key in all_chapters.keys():
+        bot.send_message(m.chat.id, key)
     
 
 @bot.message_handler(commands = ["create"])
@@ -104,24 +106,40 @@ def handle_text(message):
     bot.send_message(message.chat.id, f"stateSearch: {states['stateSearch']}")
     #bot.send_message(message.chat.id, f'state1: {states[state1]}')
     if states['stateSearch'] == True:
-        bot.send_message(message.chat.id, 'Вы ищите:')
+        
+        all_chapters = get_chapters()
+        #bot.send_message(message.chat.id, 'Вы ищите:')
         if states['state1'] == True:
-            if message.text in main_chapters:
-                bot.send_message(message.chat.id, '1В разделе ' + message.text + ' доступны следующие подразделы: ')
-                for subchapter in subchapters:
+            if message.text in all_chapters.keys():
+                bot.send_message(message.chat.id, 'В главе ' + message.text + ' доступны следующие подглавы: ')
+                global chosenMainChapter 
+                chosenMainChapter = message.text
+                for subchapter in all_chapters[message.text]:
                     bot.send_message(message.chat.id, subchapter)
                 states['state1'] = False 
             else:
                 bot.send_message(message.chat.id, '1Извините, раздел ' + message.text + ' не найден')
         
-        else:
-            if message.text in subchapters:
+        elif states['state2']:
+            
+            if message.text in all_chapters[chosenMainChapter]:
                 bot.send_message(message.chat.id, '2В подразделе ' + message.text + ' доступны следующие темы:')
-                for theme in thirdLevelChapters:
+                global chosenSubChapter
+                chosenSubChapter = message.text
+                for theme in all_chapters[chosenMainChapter][message.text]:
                     bot.send_message(message.chat.id, theme)
+                states['state2'] = False
             else:
-                bot.send_message(message.chat.id, '2Извините, раздел ' + message.text + ' не найден')
+                bot.send_message(message.chat.id, '2Извините, подраздел ' + message.text + ' не найден')
         
+        else:
+            if message.text in all_chapters[chosenMainChapter][chosenSubChapter]:
+                bot.send_message(message.chat.id, 'В главе третьего уровня ' + message.text + ' найдена следующая информация:')
+                bot.send_message(message.chat.id, get_information(chosenMainChapter, chosenSubChapter, message.text))
+                #get_information(chosenMainChapter, chosenSubChapter, message.text)
+            else:
+                bot.send_message(message.chat.id, '2Извините, глава третьего уровня ' + message.text + ' не найдена')
+
     elif states['stateCreate']:
         
         add_MainChapter(message.text)
