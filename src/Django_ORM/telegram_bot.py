@@ -24,7 +24,7 @@ all_chapters = get_chapters()
 def state_falser():
     global states
     for state in states:
-        print(state)
+        
         if state != 'state1':
             states[state] = False
     return states
@@ -35,8 +35,8 @@ def state_falser():
 @bot.message_handler(commands=["start"])
 def start(m, res=False):
     all_chapters = get_chapters()
-    for chapter in all_chapters:
-        bot.send_message(m.chat.id, f'{chapter} {all_chapters[chapter]}')
+    #for chapter in all_chapters:
+    bot.send_message(m.chat.id, f'{all_chapters}')
     bot.send_message(m.chat.id, 'Я на связи \n Правила пользования ботом: \n Бот воспринимает только письменные запросы. Поиск информации происходит по разделам. Чтобы выбрать раздел, отправьте боту его название')
     bot.send_message(m.chat.id, 'Доступные разделы:')
     global states
@@ -77,7 +77,7 @@ def createNewTLChapter(message):
 
 @bot.message_handler(commands = ["create_Info"])
 def createNewInfo(message):
-    bot.send_message(message.chat.id, 'Напишите информацию, которую вы хотите добавить в раздел в формате: Глава Подглава Глава третьего уровня Информация. Всё, что будет написано после главы третьего уровня, будет добавлено в качестве информации')
+    bot.send_message(message.chat.id, 'Напишите информацию, которую вы хотите добавить в раздел в формате: Глава, Подглава, Глава третьего уровня, Информация. Всё, что будет написано после главы третьего уровня, будет добавлено в качестве информации')
     global states
     state_falser()
     states['stateCreateInfo'] = True
@@ -161,7 +161,20 @@ def handle_text(message):
             bot.send_message(message.chat.id, 'Нет такой главы')
 
     elif states['stateCreateInfo']:
-        bot.send_message(message.chat.id, f'тут пока ничего не работает')
+        all_chapters = get_chapters()
+        messageText = message.text.split(', ')
+        chapter = messageText[0]
+        subChapter = messageText[1]
+        tlChapter = messageText[2]
+        inform = messageText[3]
+        bot.send_message(message.chat.id, f'Вы хотите добавить следующую информацию: "{inform}" в главу третьего уровня: {tlChapter} в подглаву: {subChapter} в главе: {chapter}')
+        if chapter in all_chapters and subChapter in all_chapters[chapter]:
+            bot.send_message(message.chat.id, 'Глава и подглава найдены')
+        elif chapter in all_chapters and subChapter not in all_chapters[chapter]:
+            bot.send_message(message.chat.id, 'В данной главе нет такой подглавы')
+        elif chapter not in all_chapters:
+            bot.send_message(message.chat.id, 'Нет такой главы')
+        #bot.send_message(message.chat.id, f'тут пока ничего не работает')
 
         
         
