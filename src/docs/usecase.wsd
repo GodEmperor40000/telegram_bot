@@ -1,0 +1,43 @@
+@startuml Example
+    title Телеграмм бот 
+
+    left to right direction
+
+    actor "Пользователь" as User
+    actor "База данных" as Db
+    actor "Зарегистрированный пользователь" as Auth_user
+    actor "Командная строка" as CLI
+
+    usecase "Отправить запрос" as question
+    usecase "Поиск по разделам" as secs_search
+    usecase "Получить результат" as result
+
+    package "База данных" {
+    usecase "Добавить данные" as create
+    usecase "Прочитать данные" as read
+    usecase "Отредактировать данные" as update
+    usecase "удалить данные" as del
+    }
+
+    User -- question
+    question ..> result
+    secs_search .left.> question
+    Auth_user -|> User
+
+    CLI - read
+    CLI - create
+    CLI - update
+    CLI -down- del
+
+    Auth_user -- create
+    Auth_user - read
+    Auth_user - update
+    Auth_user - del
+
+    Db - result
+
+    Db -up-- create
+    Db -left-- read
+    Db -left-- update
+    Db -left-- del
+@enduml
